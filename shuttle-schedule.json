@@ -1,0 +1,809 @@
+{
+    "routes": {
+        "off-campus": {
+            "name": "Off-Campus Shuttle",
+            "description": "Shuttle service between campus and off-campus locations"
+        }
+    },
+    "stops": {
+        "bay-area-park-ride": {
+            "name": "Bay Area Park & Ride",
+            "type": "off-campus",
+            "order": 1
+        },
+        "united-way": {
+            "name": "United Way of Houston",
+            "type": "off-campus",
+            "order": 2
+        },
+        "coastal-flow": {
+            "name": "Coastal Flow Measurement Co",
+            "type": "off-campus",
+            "order": 3
+        },
+        "anytime-fitness": {
+            "name": "Anytime Fitness",
+            "type": "off-campus",
+            "order": 4
+        },
+        "university-forest": {
+            "name": "University Forest Apts",
+            "type": "off-campus",
+            "order": 5
+        },
+        "delta": {
+            "name": "Delta (@Front)",
+            "type": "off-campus",
+            "order": 6
+        },
+        "arbor": {
+            "name": "Arbor",
+            "type": "off-campus",
+            "order": 7
+        },
+        "police-building": {
+            "name": "Police Building",
+            "type": "on-campus",
+            "order": 8
+        },
+        "recreation-center": {
+            "name": "Recreation Center",
+            "type": "on-campus",
+            "order": 9
+        },
+        "hunter-hall": {
+            "name": "Hunter Hall",
+            "type": "on-campus",
+            "order": 10
+        },
+        "sscb": {
+            "name": "SSCB Entrance",
+            "type": "on-campus",
+            "order": 11
+        },
+        "bayou-student": {
+            "name": "Bayou Student Entrance",
+            "type": "on-campus",
+            "order": 12
+        }
+    },
+    "schedule": {
+        "mon-thu": {
+            "dayLabel": "Monday - Thursday",
+            "trips": [
+                {
+                    "tripId": 1,
+                    "times": {
+                        "bay-area-park-ride": "6:20 AM",
+                        "united-way": "6:25 AM",
+                        "coastal-flow": "6:30 AM",
+                        "anytime-fitness": "6:35 AM",
+                        "university-forest": "6:35 AM",
+                        "delta": "6:40 AM",
+                        "arbor": "6:40 AM",
+                        "recreation-center": "6:45 AM",
+                        "hunter-hall": "6:45 AM",
+                        "sscb": "6:50 AM",
+                        "bayou-student": "6:50 AM"
+                    }
+                },
+                {
+                    "tripId": 2,
+                    "times": {
+                        "bay-area-park-ride": "6:55 AM",
+                        "united-way": "7:00 AM",
+                        "coastal-flow": "7:05 AM",
+                        "anytime-fitness": "7:10 AM",
+                        "university-forest": "7:10 AM",
+                        "delta": "7:15 AM",
+                        "arbor": "7:15 AM",
+                        "police-building": "DROP OFF",
+                        "recreation-center": "7:20 AM",
+                        "hunter-hall": "7:20 AM",
+                        "sscb": "7:25 AM",
+                        "bayou-student": "7:25 AM"
+                    }
+                },
+                {
+                    "tripId": 3,
+                    "times": {
+                        "university-forest": "7:30 AM",
+                        "delta": "7:30 AM",
+                        "arbor": "7:30 AM",
+                        "police-building": "DROP OFF",
+                        "recreation-center": "DROP OFF",
+                        "hunter-hall": "DROP OFF",
+                        "sscb": "DROP OFF",
+                        "bayou-student": "DROP OFF"
+                    }
+                },
+                {
+                    "tripId": 4,
+                    "times": {
+                        "anytime-fitness": "8:30 AM",
+                        "university-forest": "8:30 AM",
+                        "delta": "8:35 AM",
+                        "arbor": "8:35 AM",
+                        "recreation-center": "8:40 AM",
+                        "hunter-hall": "8:40 AM",
+                        "sscb": "8:45 AM",
+                        "bayou-student": "8:45 AM"
+                    }
+                },
+                {
+                    "tripId": 5,
+                    "times": {
+                        "anytime-fitness": "8:50 AM",
+                        "university-forest": "8:50 AM",
+                        "delta": "8:55 AM",
+                        "arbor": "8:55 AM",
+                        "police-building": "DROP OFF",
+                        "recreation-center": "9:00 AM",
+                        "hunter-hall": "9:00 AM",
+                        "sscb": "9:05 AM",
+                        "bayou-student": "9:05 AM",
+                        "delta-return": "9:10 AM",
+                        "arbor-return": "9:10 AM"
+                    }
+                },
+                {
+                    "tripId": 6,
+                    "times": {
+                        "united-way": "9:15 AM",
+                        "coastal-flow": "9:20 AM",
+                        "anytime-fitness": "9:25 AM",
+                        "university-forest": "9:25 AM",
+                        "delta": "9:30 AM",
+                        "arbor": "9:30 AM",
+                        "police-building": "DROP OFF",
+                        "recreation-center": "DROP OFF",
+                        "hunter-hall": "DROP OFF",
+                        "sscb": "DROP OFF",
+                        "bayou-student": "DROP OFF"
+                    }
+                },
+                {
+                    "tripId": 7,
+                    "times": {
+                        "bay-area-park-ride": "10:20 AM",
+                        "united-way": "10:25 AM",
+                        "coastal-flow": "10:30 AM",
+                        "anytime-fitness": "10:35 AM",
+                        "university-forest": "10:35 AM",
+                        "delta": "10:40 AM",
+                        "arbor": "10:40 AM",
+                        "recreation-center": "10:45 AM",
+                        "hunter-hall": "10:45 AM",
+                        "sscb": "10:50 AM",
+                        "bayou-student": "10:50 AM",
+                        "delta-return": "10:55 AM",
+                        "arbor-return": "10:55 AM"
+                    }
+                },
+                {
+                    "tripId": 8,
+                    "times": {
+                        "bay-area-park-ride": "11:00 AM",
+                        "united-way": "11:05 AM",
+                        "coastal-flow": "11:10 AM",
+                        "anytime-fitness": "11:15 AM",
+                        "university-forest": "11:15 AM",
+                        "delta": "11:20 AM",
+                        "arbor": "11:20 AM",
+                        "police-building": "DROP OFF",
+                        "recreation-center": "11:25 AM",
+                        "hunter-hall": "11:25 AM",
+                        "sscb": "11:30 AM",
+                        "bayou-student": "11:30 AM"
+                    }
+                },
+                {
+                    "tripId": 9,
+                    "times": {
+                        "university-forest": "11:35 AM",
+                        "delta": "11:35 AM",
+                        "arbor": "11:35 AM",
+                        "police-building": "DROP OFF",
+                        "recreation-center": "DROP OFF",
+                        "hunter-hall": "DROP OFF",
+                        "sscb": "DROP OFF",
+                        "bayou-student": "DROP OFF"
+                    }
+                },
+                {
+                    "tripId": 10,
+                    "times": {
+                        "united-way": "12:25 PM",
+                        "coastal-flow": "12:30 PM",
+                        "anytime-fitness": "12:35 PM",
+                        "university-forest": "12:35 PM",
+                        "delta": "12:40 PM",
+                        "arbor": "12:40 PM",
+                        "recreation-center": "12:45 PM",
+                        "hunter-hall": "12:45 PM",
+                        "sscb": "12:50 PM",
+                        "bayou-student": "12:50 PM",
+                        "delta-return": "12:55 PM",
+                        "arbor-return": "12:55 PM"
+                    }
+                },
+                {
+                    "tripId": 11,
+                    "times": {
+                        "united-way": "1:00 PM",
+                        "coastal-flow": "1:05 PM",
+                        "anytime-fitness": "1:10 PM",
+                        "university-forest": "1:15 PM",
+                        "delta": "1:15 PM",
+                        "arbor": "1:15 PM",
+                        "police-building": "DROP OFF",
+                        "recreation-center": "1:20 PM",
+                        "hunter-hall": "1:20 PM",
+                        "sscb": "1:25 PM",
+                        "bayou-student": "1:25 PM"
+                    }
+                },
+                {
+                    "tripId": 12,
+                    "times": {
+                        "university-forest": "1:30 PM",
+                        "delta": "1:30 PM",
+                        "arbor": "1:30 PM",
+                        "police-building": "DROP OFF",
+                        "recreation-center": "DROP OFF",
+                        "hunter-hall": "DROP OFF",
+                        "sscb": "DROP OFF",
+                        "bayou-student": "DROP OFF"
+                    }
+                },
+                {
+                    "tripId": 13,
+                    "times": {
+                        "anytime-fitness": "2:30 PM",
+                        "university-forest": "2:30 PM",
+                        "delta": "2:35 PM",
+                        "arbor": "2:35 PM",
+                        "recreation-center": "2:40 PM",
+                        "hunter-hall": "2:40 PM",
+                        "sscb": "2:45 PM",
+                        "bayou-student": "2:45 PM"
+                    }
+                },
+                {
+                    "tripId": 14,
+                    "times": {
+                        "anytime-fitness": "2:50 PM",
+                        "university-forest": "2:50 PM",
+                        "delta": "2:55 PM",
+                        "arbor": "2:55 PM",
+                        "police-building": "DROP OFF",
+                        "recreation-center": "3:00 PM",
+                        "hunter-hall": "3:00 PM",
+                        "sscb": "3:05 PM",
+                        "bayou-student": "3:05 PM",
+                        "delta-return": "3:10 PM",
+                        "arbor-return": "3:10 PM"
+                    }
+                },
+                {
+                    "tripId": 15,
+                    "times": {
+                        "united-way": "3:15 PM",
+                        "coastal-flow": "3:20 PM",
+                        "anytime-fitness": "3:25 PM",
+                        "university-forest": "3:25 PM",
+                        "delta": "3:30 PM",
+                        "arbor": "3:30 PM",
+                        "police-building": "DROP OFF",
+                        "recreation-center": "DROP OFF",
+                        "hunter-hall": "DROP OFF",
+                        "sscb": "DROP OFF",
+                        "bayou-student": "DROP OFF"
+                    }
+                },
+                {
+                    "tripId": 16,
+                    "times": {
+                        "bay-area-park-ride": "4:20 PM",
+                        "united-way": "4:25 PM",
+                        "coastal-flow": "4:30 PM",
+                        "anytime-fitness": "4:35 PM",
+                        "university-forest": "4:35 PM",
+                        "delta": "4:40 PM",
+                        "arbor": "4:40 PM",
+                        "recreation-center": "4:45 PM",
+                        "hunter-hall": "4:45 PM",
+                        "sscb": "4:50 PM",
+                        "bayou-student": "4:50 PM",
+                        "delta-return": "4:55 PM",
+                        "arbor-return": "4:55 PM"
+                    }
+                },
+                {
+                    "tripId": 17,
+                    "times": {
+                        "bay-area-park-ride": "5:00 PM",
+                        "united-way": "5:05 PM",
+                        "coastal-flow": "5:10 PM",
+                        "anytime-fitness": "5:15 PM",
+                        "university-forest": "5:15 PM",
+                        "delta": "5:20 PM",
+                        "arbor": "5:20 PM",
+                        "police-building": "DROP OFF",
+                        "recreation-center": "5:25 PM",
+                        "hunter-hall": "5:25 PM",
+                        "sscb": "5:30 PM",
+                        "bayou-student": "5:30 PM"
+                    }
+                },
+                {
+                    "tripId": 18,
+                    "times": {
+                        "university-forest": "5:35 PM",
+                        "delta": "5:35 PM",
+                        "arbor": "5:35 PM",
+                        "police-building": "DROP OFF",
+                        "recreation-center": "DROP OFF",
+                        "hunter-hall": "DROP OFF",
+                        "sscb": "DROP OFF",
+                        "bayou-student": "DROP OFF"
+                    }
+                },
+                {
+                    "tripId": 19,
+                    "times": {
+                        "bay-area-park-ride": "6:20 PM",
+                        "united-way": "6:25 PM",
+                        "coastal-flow": "6:30 PM",
+                        "anytime-fitness": "6:35 PM",
+                        "university-forest": "6:35 PM",
+                        "delta": "6:40 PM",
+                        "arbor": "6:40 PM",
+                        "recreation-center": "6:45 PM",
+                        "hunter-hall": "6:45 PM",
+                        "sscb": "6:50 PM",
+                        "bayou-student": "6:50 PM",
+                        "delta-return": "6:55 PM",
+                        "arbor-return": "6:55 PM"
+                    }
+                },
+                {
+                    "tripId": 20,
+                    "times": {
+                        "bay-area-park-ride": "7:00 PM",
+                        "united-way": "7:05 PM",
+                        "coastal-flow": "7:10 PM",
+                        "anytime-fitness": "7:15 PM",
+                        "university-forest": "7:15 PM",
+                        "delta": "7:20 PM",
+                        "arbor": "7:20 PM",
+                        "police-building": "DROP OFF",
+                        "recreation-center": "7:25 PM",
+                        "hunter-hall": "7:25 PM",
+                        "sscb": "7:30 PM",
+                        "bayou-student": "7:30 PM"
+                    }
+                },
+                {
+                    "tripId": 21,
+                    "times": {
+                        "university-forest": "7:35 PM",
+                        "delta": "7:35 PM",
+                        "arbor": "7:35 PM",
+                        "police-building": "DROP OFF",
+                        "recreation-center": "DROP OFF",
+                        "hunter-hall": "DROP OFF",
+                        "sscb": "DROP OFF",
+                        "bayou-student": "DROP OFF"
+                    }
+                },
+                {
+                    "tripId": 22,
+                    "times": {
+                        "recreation-center": "8:20 PM",
+                        "hunter-hall": "8:20 PM",
+                        "sscb": "8:25 PM",
+                        "bayou-student": "8:25 PM",
+                        "delta": "8:30 PM",
+                        "arbor": "8:30 PM"
+                    }
+                },
+                {
+                    "tripId": 23,
+                    "times": {
+                        "recreation-center": "8:45 PM",
+                        "hunter-hall": "8:45 PM",
+                        "sscb": "8:50 PM",
+                        "bayou-student": "8:50 PM",
+                        "delta": "8:55 PM",
+                        "arbor": "8:55 PM"
+                    }
+                },
+                {
+                    "tripId": 24,
+                    "times": {
+                        "recreation-center": "9:10 PM",
+                        "hunter-hall": "9:10 PM",
+                        "sscb": "9:15 PM",
+                        "bayou-student": "9:15 PM",
+                        "delta": "9:20 PM",
+                        "arbor": "9:20 PM"
+                    }
+                },
+                {
+                    "tripId": 25,
+                    "times": {
+                        "recreation-center": "9:55 PM",
+                        "hunter-hall": "9:55 PM",
+                        "sscb": "10:00 PM",
+                        "bayou-student": "10:00 PM",
+                        "delta": "10:05 PM",
+                        "arbor": "10:05 PM"
+                    }
+                },
+                {
+                    "tripId": 26,
+                    "times": {
+                        "recreation-center": "10:20 PM",
+                        "hunter-hall": "10:20 PM",
+                        "sscb": "10:25 PM",
+                        "bayou-student": "10:25 PM",
+                        "delta": "10:30 PM",
+                        "arbor": "10:30 PM"
+                    }
+                },
+                {
+                    "tripId": 27,
+                    "times": {
+                        "recreation-center": "10:45 PM",
+                        "hunter-hall": "10:45 PM",
+                        "sscb": "10:50 PM",
+                        "bayou-student": "10:50 PM",
+                        "delta": "10:55 PM",
+                        "arbor": "10:55 PM"
+                    }
+                },
+                {
+                    "tripId": 28,
+                    "times": {
+                        "recreation-center": "11:05 PM",
+                        "hunter-hall": "11:05 PM",
+                        "sscb": "11:10 PM",
+                        "bayou-student": "11:10 PM",
+                        "delta": "11:15 PM",
+                        "arbor": "11:15 PM"
+                    }
+                }
+            ]
+        },
+        "fri": {
+            "dayLabel": "Friday",
+            "trips": [
+                {
+                    "tripId": 1,
+                    "times": {
+                        "bay-area-park-ride": "6:20 AM",
+                        "united-way": "6:25 AM",
+                        "coastal-flow": "6:30 AM",
+                        "anytime-fitness": "6:35 AM",
+                        "university-forest": "6:35 AM",
+                        "delta": "6:40 AM",
+                        "arbor": "6:40 AM",
+                        "recreation-center": "6:45 AM",
+                        "hunter-hall": "6:45 AM",
+                        "sscb": "6:50 AM",
+                        "bayou-student": "6:50 AM"
+                    }
+                },
+                {
+                    "tripId": 2,
+                    "times": {
+                        "bay-area-park-ride": "6:55 AM",
+                        "united-way": "7:00 AM",
+                        "coastal-flow": "7:05 AM",
+                        "anytime-fitness": "7:10 AM",
+                        "university-forest": "7:10 AM",
+                        "delta": "7:15 AM",
+                        "arbor": "7:15 AM",
+                        "police-building": "DROP OFF",
+                        "recreation-center": "7:20 AM",
+                        "hunter-hall": "7:20 AM",
+                        "sscb": "7:25 AM",
+                        "bayou-student": "7:25 AM"
+                    }
+                },
+                {
+                    "tripId": 3,
+                    "times": {
+                        "university-forest": "7:30 AM",
+                        "delta": "7:30 AM",
+                        "arbor": "7:30 AM",
+                        "police-building": "DROP OFF",
+                        "recreation-center": "DROP OFF",
+                        "hunter-hall": "DROP OFF",
+                        "sscb": "DROP OFF",
+                        "bayou-student": "DROP OFF"
+                    }
+                },
+                {
+                    "tripId": 4,
+                    "times": {
+                        "anytime-fitness": "8:30 AM",
+                        "university-forest": "8:30 AM",
+                        "delta": "8:35 AM",
+                        "arbor": "8:35 AM",
+                        "recreation-center": "8:40 AM",
+                        "hunter-hall": "8:40 AM",
+                        "sscb": "8:45 AM",
+                        "bayou-student": "8:45 AM"
+                    }
+                },
+                {
+                    "tripId": 5,
+                    "times": {
+                        "anytime-fitness": "8:50 AM",
+                        "university-forest": "8:50 AM",
+                        "delta": "8:55 AM",
+                        "arbor": "8:55 AM",
+                        "police-building": "DROP OFF",
+                        "recreation-center": "9:00 AM",
+                        "hunter-hall": "9:00 AM",
+                        "sscb": "9:05 AM",
+                        "bayou-student": "9:05 AM",
+                        "delta-return": "9:10 AM",
+                        "arbor-return": "9:10 AM"
+                    }
+                },
+                {
+                    "tripId": 6,
+                    "times": {
+                        "united-way": "9:15 AM",
+                        "coastal-flow": "9:20 AM",
+                        "anytime-fitness": "9:25 AM",
+                        "university-forest": "9:25 AM",
+                        "delta": "9:30 AM",
+                        "arbor": "9:30 AM",
+                        "police-building": "DROP OFF",
+                        "recreation-center": "DROP OFF",
+                        "hunter-hall": "DROP OFF",
+                        "sscb": "DROP OFF",
+                        "bayou-student": "DROP OFF"
+                    }
+                },
+                {
+                    "tripId": 7,
+                    "times": {
+                        "bay-area-park-ride": "10:20 AM",
+                        "united-way": "10:25 AM",
+                        "coastal-flow": "10:30 AM",
+                        "anytime-fitness": "10:35 AM",
+                        "university-forest": "10:35 AM",
+                        "delta": "10:40 AM",
+                        "arbor": "10:40 AM",
+                        "recreation-center": "10:45 AM",
+                        "hunter-hall": "10:45 AM",
+                        "sscb": "10:50 AM",
+                        "bayou-student": "10:50 AM",
+                        "delta-return": "10:55 AM",
+                        "arbor-return": "10:55 AM"
+                    }
+                },
+                {
+                    "tripId": 8,
+                    "times": {
+                        "bay-area-park-ride": "11:00 AM",
+                        "united-way": "11:05 AM",
+                        "coastal-flow": "11:10 AM",
+                        "anytime-fitness": "11:15 AM",
+                        "university-forest": "11:15 AM",
+                        "delta": "11:20 AM",
+                        "arbor": "11:20 AM",
+                        "police-building": "DROP OFF",
+                        "recreation-center": "11:25 AM",
+                        "hunter-hall": "11:25 AM",
+                        "sscb": "11:30 AM",
+                        "bayou-student": "11:30 AM"
+                    }
+                },
+                {
+                    "tripId": 9,
+                    "times": {
+                        "university-forest": "11:35 AM",
+                        "delta": "11:35 AM",
+                        "arbor": "11:35 AM",
+                        "police-building": "DROP OFF",
+                        "recreation-center": "DROP OFF",
+                        "hunter-hall": "DROP OFF",
+                        "sscb": "DROP OFF",
+                        "bayou-student": "DROP OFF"
+                    }
+                },
+                {
+                    "tripId": 10,
+                    "times": {
+                        "united-way": "12:25 PM",
+                        "coastal-flow": "12:30 PM",
+                        "anytime-fitness": "12:35 PM",
+                        "university-forest": "12:35 PM",
+                        "delta": "12:40 PM",
+                        "arbor": "12:40 PM",
+                        "recreation-center": "12:45 PM",
+                        "hunter-hall": "12:45 PM",
+                        "sscb": "12:50 PM",
+                        "bayou-student": "12:50 PM",
+                        "delta-return": "12:55 PM",
+                        "arbor-return": "12:55 PM"
+                    }
+                },
+                {
+                    "tripId": 11,
+                    "times": {
+                        "united-way": "1:00 PM",
+                        "coastal-flow": "1:05 PM",
+                        "anytime-fitness": "1:10 PM",
+                        "university-forest": "1:15 PM",
+                        "delta": "1:15 PM",
+                        "arbor": "1:15 PM",
+                        "police-building": "DROP OFF",
+                        "recreation-center": "1:20 PM",
+                        "hunter-hall": "1:20 PM",
+                        "sscb": "1:25 PM",
+                        "bayou-student": "1:25 PM"
+                    }
+                },
+                {
+                    "tripId": 12,
+                    "times": {
+                        "university-forest": "1:30 PM",
+                        "delta": "1:30 PM",
+                        "arbor": "1:30 PM",
+                        "police-building": "DROP OFF",
+                        "recreation-center": "DROP OFF",
+                        "hunter-hall": "DROP OFF",
+                        "sscb": "DROP OFF",
+                        "bayou-student": "DROP OFF"
+                    }
+                },
+                {
+                    "tripId": 13,
+                    "times": {
+                        "anytime-fitness": "2:30 PM",
+                        "university-forest": "2:30 PM",
+                        "delta": "2:35 PM",
+                        "arbor": "2:35 PM",
+                        "recreation-center": "2:40 PM",
+                        "hunter-hall": "2:40 PM",
+                        "sscb": "2:45 PM",
+                        "bayou-student": "2:45 PM"
+                    }
+                },
+                {
+                    "tripId": 14,
+                    "times": {
+                        "anytime-fitness": "2:50 PM",
+                        "university-forest": "2:50 PM",
+                        "delta": "2:55 PM",
+                        "arbor": "2:55 PM",
+                        "police-building": "DROP OFF",
+                        "recreation-center": "3:00 PM",
+                        "hunter-hall": "3:00 PM",
+                        "sscb": "3:05 PM",
+                        "bayou-student": "3:05 PM",
+                        "delta-return": "3:10 PM",
+                        "arbor-return": "3:10 PM"
+                    }
+                },
+                {
+                    "tripId": 15,
+                    "times": {
+                        "united-way": "3:15 PM",
+                        "coastal-flow": "3:20 PM",
+                        "anytime-fitness": "3:25 PM",
+                        "university-forest": "3:25 PM",
+                        "delta": "3:30 PM",
+                        "arbor": "3:30 PM",
+                        "police-building": "DROP OFF",
+                        "recreation-center": "DROP OFF",
+                        "hunter-hall": "DROP OFF",
+                        "sscb": "DROP OFF",
+                        "bayou-student": "DROP OFF"
+                    }
+                },
+                {
+                    "tripId": 16,
+                    "times": {
+                        "recreation-center": "4:20 PM",
+                        "hunter-hall": "4:20 PM",
+                        "sscb": "4:25 PM",
+                        "bayou-student": "4:25 PM",
+                        "delta": "4:30 PM",
+                        "arbor": "4:30 PM"
+                    }
+                },
+                {
+                    "tripId": 17,
+                    "times": {
+                        "recreation-center": "4:45 PM",
+                        "hunter-hall": "4:45 PM",
+                        "sscb": "4:50 PM",
+                        "bayou-student": "4:50 PM",
+                        "delta": "4:55 PM",
+                        "arbor": "4:55 PM"
+                    }
+                },
+                {
+                    "tripId": 18,
+                    "times": {
+                        "recreation-center": "5:10 PM",
+                        "hunter-hall": "5:10 PM",
+                        "sscb": "5:15 PM",
+                        "bayou-student": "5:15 PM",
+                        "delta": "5:20 PM",
+                        "arbor": "5:20 PM"
+                    }
+                },
+                {
+                    "tripId": 19,
+                    "times": {
+                        "recreation-center": "6:05 PM",
+                        "sscb": "6:05 PM",
+                        "bayou-student": "6:05 PM",
+                        "delta": "6:10 PM",
+                        "arbor": "6:10 PM"
+                    }
+                }
+            ]
+        },
+        "sat": {
+            "dayLabel": "Saturday",
+            "trips": [
+                {
+                    "tripId": 1,
+                    "note": "Grocery Trip (HEB) 10:30 - 11:30",
+                    "times": {
+                        "anytime-fitness": "Grocery Trip",
+                        "university-forest": "Grocery Trip"
+                    }
+                },
+                {
+                    "tripId": 2,
+                    "times": {
+                        "united-way": "12:00 PM",
+                        "coastal-flow": "12:05 PM",
+                        "anytime-fitness": "12:10 PM",
+                        "university-forest": "12:10 PM",
+                        "hunter-hall": "12:15 PM",
+                        "bayou-student": "12:15 PM"
+                    }
+                },
+                {
+                    "tripId": 3,
+                    "times": {
+                        "united-way": "12:20 PM",
+                        "coastal-flow": "12:25 PM",
+                        "anytime-fitness": "12:30 PM",
+                        "university-forest": "12:30 PM",
+                        "hunter-hall": "12:35 PM",
+                        "bayou-student": "DROP OFF"
+                    }
+                },
+                {
+                    "tripId": 4,
+                    "times": {
+                        "bayou-student": "1:35 PM"
+                    }
+                },
+                {
+                    "tripId": 5,
+                    "times": {
+                        "bayou-student": "1:50 PM"
+                    }
+                }
+            ]
+        }
+    },
+    "notes": {
+        "dropOff": "Shuttle will only stop at these sites if riders for that stop are on board",
+        "groceryTrip": "Saturday grocery trip to HEB runs from 10:30 AM - 11:30 AM"
+    }
+}
