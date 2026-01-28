@@ -7,13 +7,16 @@ A bot to check shuttle bus schedules at various campus locations.
 import json
 import logging
 import os
-from datetime import datetime
+import pytz
 from datetime import datetime, timedelta
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, CallbackQueryHandler, filters, ContextTypes
 
 # Bot Token - uses environment variable for cloud, fallback for local
 BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "8483816124:AAGSxAnKnRRcV-7_tjuZH0xqm98bOQRSvHs")
+
+# Timezone for the campus (Houston is Central Time)
+CAMPUS_TZ = pytz.timezone('US/Central')
 
 # Enable logging
 logging.basicConfig(
@@ -33,9 +36,14 @@ def load_schedule():
 
 shuttle_data = load_schedule()
 
+# Get current time in campus timezone
+def get_now():
+    return datetime.now(CAMPUS_TZ)
+
 # Get current day type
 def get_day_type():
-    day = datetime.now().weekday()  # 0=Monday, 6=Sunday
+    now = get_now()
+    day = now.weekday()  # 0=Monday, 6=Sunday
     if day == 6:  # Sunday
         return None
     elif day == 5:  # Saturday
@@ -64,9 +72,9 @@ def parse_time(time_str):
     except:
         return None
 
-# Get current minutes since midnight
+# Get current minutes since midnight in campus timezone
 def get_current_minutes():
-    now = datetime.now()
+    now = get_now()
     return now.hour * 60 + now.minute
 
 # Format minutes to readable time
@@ -179,7 +187,8 @@ async def send_reminder(context: ContextTypes.DEFAULT_TYPE):
 # Command Handlers
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Send welcome message"""
-    hour = datetime.now().hour
+    now = get_now()
+    hour = now.hour
     if hour < 12:
         greeting = "Good morning"
     elif hour < 17:
@@ -194,14 +203,26 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not day_type:
         message += "⚠️ *Note:* Today is Sunday. The shuttle service doesn't operate on Sundays."
     else:
-        message += f"📅 Today's schedule: *{get_day_label()}*\n\n"
+        message += f"📅 Today's schedule: *{get_day_label()}*\n"
+        message += f"🕒 Current time: *{now.strftime('%I:%M %p')}*\n\n"
         message += "I can help you check shuttle times and set reminders!\n\n"
         message += "*Commands:*\n"
         message += "/next - Find next shuttle at a stop\n"
         message += "/stops - See all stops\n"
         message += "/schedule - See full schedule for a stop\n"
+        message += "/time - Check bot's current time\n"
         message += "/help - Show this help message\n\n"
         message += "Or just type a stop name like *Hunter Hall* or *Delta*!"
+    
+    await update.message.reply_text(message, parse_mode='Markdown')
+
+async def time_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Show current time in campus timezone"""
+    now = get_now()
+    message = f"🕒 *Current Campus Time:*\n"
+    message += f"Date: {now.strftime('%A, %b %d, %Y')}\n"
+    message += f"Time: {now.strftime('%I:%M:%S %p')}\n"
+    message += f"Schedule Type: *{get_day_label()}*"
     
     await update.message.reply_text(message, parse_mode='Markdown')
 
@@ -440,6 +461,7 @@ def main():
     application.add_handler(CommandHandler("stops", stops_command))
     application.add_handler(CommandHandler("next", next_command))
     application.add_handler(CommandHandler("schedule", schedule_command))
+    application.add_handler(CommandHandler("time", time_command))
     application.add_handler(CallbackQueryHandler(handle_callback))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     
