@@ -152,7 +152,7 @@ def get_stop_schedule(stop_id):
     current_minutes = get_current_minutes()
     
     # Campus stops that trigger "Heading to" info
-    campus_stops = ['recreation-center', 'hunter-hall', 'sscb', 'bayou-student']
+    campus_stops = ['recreation-center', 'hunter-hall', 'sscb', 'bayou-student', 'police-building']
     
     for i, trip in enumerate(trips):
         time_str = trip.get('times', {}).get(stop_id)
@@ -160,46 +160,39 @@ def get_stop_schedule(stop_id):
             minutes = parse_time(time_str)
             if minutes is not None:
                 heading_to = None
-                # If it's a campus stop, find where the bus goes next
+                # If it's a campus stop, find where the bus goes AFTER campus
                 if stop_id in campus_stops:
-                    # 1. Check the CURRENT trip for any remaining stops
-                    found_in_current = False
-                    times_dict = trip.get('times', {})
-                    # Get all stops sorted by their defined order
-                    sorted_stop_ids = sorted(shuttle_data['stops'].keys(), key=lambda x: shuttle_data['stops'][x]['order'])
-                    
-                    current_stop_order = shuttle_data['stops'][stop_id]['order']
-                    for sid in sorted_stop_ids:
-                        if shuttle_data['stops'][sid]['order'] > current_stop_order:
-                            next_val = times_dict.get(sid)
-                            if next_val == 'DROP OFF':
-                                # User rule: DROP OFF after 8:30 PM means BAP&R
-                                if minutes >= 20.5 * 60: # 8:30 PM
-                                    heading_to = "Bay Area Park & Ride"
-                                else:
-                                    heading_to = "Bay Area Park & Ride (DROP OFF ONLY)"
-                                found_in_current = True
-                                break
-                            elif next_val and (('AM' in next_val) or ('PM' in next_val)):
-                                next_stop_name = shuttle_data['stops'].get(sid, {}).get('name', sid)
-                                heading_to = f"{next_stop_name} ({next_val})"
-                                found_in_current = True
+                    found = False
+                    # 1. Check remaining stops in CURRENT trip first
+                    current_times = trip.get('times', {})
+                    for s_id, t_val in current_times.items():
+                        # Skip until we reach current stop's position
+                        if not found:
+                            if s_id == stop_id: found = True
+                            continue
+                        # Once past current stop, find first OFF-CAMPUS stop
+                        stop_info = shuttle_data['stops'].get(s_id, {})
+                        if stop_info.get('type') == 'off-campus':
+                            if t_val and t_val != 'DROP OFF':
+                                heading_to = f"{stop_info['name']} ({t_val})"
                                 break
                     
-                    # 2. If not found in current trip, check the NEXT trip(s)
-                    if not found_in_current:
+                    # 2. If no off-campus stop in current trip, check NEXT trips
+                    if not heading_to:
                         for next_trip_idx in range(i + 1, len(trips)):
                             next_trip = trips[next_trip_idx]
                             next_times = next_trip.get('times', {})
                             
-                            # Find the first stop in the next trip that has an entry
                             for next_stop_id, next_time_val in next_times.items():
-                                if next_time_val == 'DROP OFF':
+                                stop_info = shuttle_data['stops'].get(next_stop_id, {})
+                                # We only care where it's heading OFF-CAMPUS
+                                if stop_info.get('type') == 'off-campus':
+                                    if next_time_val and next_time_val != 'DROP OFF':
+                                        heading_to = f"{stop_info['name']} ({next_time_val})"
+                                        break
+                                # Special Rule: If it's a campus DROP OFF, it's headed to the Park & Ride
+                                elif next_time_val == 'DROP OFF':
                                     heading_to = "Bay Area Park & Ride (DROP OFF ONLY)"
-                                    break
-                                elif next_time_val and (('AM' in next_time_val) or ('PM' in next_time_val)):
-                                    next_stop_name = shuttle_data['stops'].get(next_stop_id, {}).get('name', next_stop_id)
-                                    heading_to = f"{next_stop_name} ({next_time_val})"
                                     break
                             if heading_to: break
                 
