@@ -144,23 +144,47 @@ def get_stop_schedule(stop_id):
         return []
     
     schedule = shuttle_data.get('schedule', {}).get(day_type, {})
+    trips = schedule.get('trips', [])
     if not schedule:
         return []
     
     times = []
     current_minutes = get_current_minutes()
     
-    for trip in schedule.get('trips', []):
+    # Campus stops that trigger "Heading to" info
+    campus_stops = ['recreation-center', 'hunter-hall', 'sscb', 'bayou-student']
+    
+    for i, trip in enumerate(trips):
         time_str = trip.get('times', {}).get(stop_id)
         if time_str and time_str != 'DROP OFF' and 'Grocery' not in time_str:
             minutes = parse_time(time_str)
             if minutes is not None:
+                heading_to = None
+                # If it's a campus stop, find where the bus goes next
+                if stop_id in campus_stops:
+                    # 1. Check the NEXT trip(s) for the first available time/action
+                    for next_trip_idx in range(i + 1, len(trips)):
+                        next_trip = trips[next_trip_idx]
+                        next_times = next_trip.get('times', {})
+                        
+                        # Find the first stop in the next trip that has an entry
+                        for next_stop_id, next_time_val in next_times.items():
+                            if next_time_val == 'DROP OFF':
+                                heading_to = "Bay Area Park & Ride (DROP OFF ONLY)"
+                                break
+                            elif next_time_val and (('AM' in next_time_val) or ('PM' in next_time_val)):
+                                next_stop_name = shuttle_data['stops'].get(next_stop_id, {}).get('name', next_stop_id)
+                                heading_to = f"{next_stop_name} ({next_time_val})"
+                                break
+                        if heading_to: break
+                
                 diff = minutes - current_minutes
                 times.append({
                     'time': time_str,
                     'minutes': minutes,
                     'is_past': diff < 0,
-                    'eta': format_eta(diff)
+                    'eta': format_eta(diff),
+                    'heading_to': heading_to
                 })
     
     return sorted(times, key=lambda x: x['minutes'])
@@ -331,7 +355,8 @@ async def send_next_shuttle(update: Update, stop: dict):
     keyboard = []
     for i, t in enumerate(upcoming):
         star = "⭐" if i == 0 else ""
-        message += f"{'➡️' if i==0 else '    '} *{t['time']}* - {t['eta']} {star}\n"
+        heading = f"\n    ↳ ➡️ _Heading to: {t['heading_to']}_" if t.get('heading_to') else ""
+        message += f"{'➡️' if i==0 else '    '} *{t['time']}* - {t['eta']} {star}{heading}\n"
         # Add reminder button for the very next one
         if i == 0:
             keyboard.append([InlineKeyboardButton(f"🔔 Remind me 5m before {t['time']}", callback_data=f"remind_{stop['id']}_{t['time']}")])
@@ -359,15 +384,16 @@ async def send_schedule(update_or_query, stop: dict, is_callback=False):
     keyboard = []
     
     for t in times:
+        heading = f"\n    ↳ ➡️ _Heading to: {t['heading_to']}_" if t.get('heading_to') else ""
         if t['is_past']:
-            message += f"~~{t['time']}~~ _(passed)_\n"
+            message += f"~~{t['time']}~~ _(passed)_{heading}\n"
         elif not found_next:
-            message += f"➡️ *{t['time']}* - {t['eta']} ⭐\n"
+            message += f"➡️ *{t['time']}* - {t['eta']} ⭐{heading}\n"
             found_next = True
             # Add reminder button for the next one
             keyboard.append([InlineKeyboardButton(f"🔔 Remind me 5m before {t['time']}", callback_data=f"remind_{stop['id']}_{t['time']}")])
         else:
-            message += f"    {t['time']} - {t['eta']}\n"
+            message += f"    {t['time']} - {t['eta']}{heading}\n"
     
     reply_markup = InlineKeyboardMarkup(keyboard) if keyboard else None
     
