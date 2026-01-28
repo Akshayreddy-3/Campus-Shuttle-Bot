@@ -162,21 +162,46 @@ def get_stop_schedule(stop_id):
                 heading_to = None
                 # If it's a campus stop, find where the bus goes next
                 if stop_id in campus_stops:
-                    # 1. Check the NEXT trip(s) for the first available time/action
-                    for next_trip_idx in range(i + 1, len(trips)):
-                        next_trip = trips[next_trip_idx]
-                        next_times = next_trip.get('times', {})
-                        
-                        # Find the first stop in the next trip that has an entry
-                        for next_stop_id, next_time_val in next_times.items():
-                            if next_time_val == 'DROP OFF':
-                                heading_to = "Bay Area Park & Ride (DROP OFF ONLY)"
+                    # 1. Check the CURRENT trip for any remaining stops
+                    found_in_current = False
+                    times_dict = trip.get('times', {})
+                    # Get all stops sorted by their defined order
+                    sorted_stop_ids = sorted(shuttle_data['stops'].keys(), key=lambda x: shuttle_data['stops'][x]['order'])
+                    
+                    current_stop_order = shuttle_data['stops'][stop_id]['order']
+                    for sid in sorted_stop_ids:
+                        if shuttle_data['stops'][sid]['order'] > current_stop_order:
+                            next_val = times_dict.get(sid)
+                            if next_val == 'DROP OFF':
+                                # User rule: DROP OFF after 8:30 PM means BAP&R
+                                if minutes >= 20.5 * 60: # 8:30 PM
+                                    heading_to = "Bay Area Park & Ride"
+                                else:
+                                    heading_to = "Bay Area Park & Ride (DROP OFF ONLY)"
+                                found_in_current = True
                                 break
-                            elif next_time_val and (('AM' in next_time_val) or ('PM' in next_time_val)):
-                                next_stop_name = shuttle_data['stops'].get(next_stop_id, {}).get('name', next_stop_id)
-                                heading_to = f"{next_stop_name} ({next_time_val})"
+                            elif next_val and (('AM' in next_val) or ('PM' in next_val)):
+                                next_stop_name = shuttle_data['stops'].get(sid, {}).get('name', sid)
+                                heading_to = f"{next_stop_name} ({next_val})"
+                                found_in_current = True
                                 break
-                        if heading_to: break
+                    
+                    # 2. If not found in current trip, check the NEXT trip(s)
+                    if not found_in_current:
+                        for next_trip_idx in range(i + 1, len(trips)):
+                            next_trip = trips[next_trip_idx]
+                            next_times = next_trip.get('times', {})
+                            
+                            # Find the first stop in the next trip that has an entry
+                            for next_stop_id, next_time_val in next_times.items():
+                                if next_time_val == 'DROP OFF':
+                                    heading_to = "Bay Area Park & Ride (DROP OFF ONLY)"
+                                    break
+                                elif next_time_val and (('AM' in next_time_val) or ('PM' in next_time_val)):
+                                    next_stop_name = shuttle_data['stops'].get(next_stop_id, {}).get('name', next_stop_id)
+                                    heading_to = f"{next_stop_name} ({next_time_val})"
+                                    break
+                            if heading_to: break
                 
                 diff = minutes - current_minutes
                 times.append({
