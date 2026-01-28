@@ -153,6 +153,8 @@ def get_stop_schedule(stop_id):
     
     # Campus stops that trigger "Heading to" info
     campus_stops = ['recreation-center', 'hunter-hall', 'sscb', 'bayou-student', 'police-building']
+    # Priority Hubs for "Heading to" display
+    major_hubs = ['bay-area-park-ride', 'united-way', 'coastal-flow', 'university-forest']
     
     for i, trip in enumerate(trips):
         time_str = trip.get('times', {}).get(stop_id)
@@ -162,40 +164,32 @@ def get_stop_schedule(stop_id):
                 heading_to = None
                 # If it's a campus stop, find where the bus goes AFTER campus
                 if stop_id in campus_stops:
-                    found = False
-                    # 1. Check remaining stops in CURRENT trip first
-                    current_times = trip.get('times', {})
-                    for s_id, t_val in current_times.items():
-                        # Skip until we reach current stop's position
-                        if not found:
-                            if s_id == stop_id: found = True
-                            continue
-                        # Once past current stop, find first OFF-CAMPUS stop
-                        stop_info = shuttle_data['stops'].get(s_id, {})
-                        if stop_info.get('type') == 'off-campus':
-                            if t_val and t_val != 'DROP OFF':
-                                heading_to = f"{stop_info['name']} ({t_val})"
+                    found_target = False
+                    # Check current and next trips for the first MAJOR HUB
+                    for trip_offset in range(len(trips) - i):
+                        current_search_trip = trips[i + trip_offset]
+                        search_times = current_search_trip.get('times', {})
+                        
+                        # Look for major hubs first
+                        for hub_id in major_hubs:
+                            hub_time = search_times.get(hub_id)
+                            if hub_time and hub_time != 'DROP OFF':
+                                hub_name = shuttle_data['stops'].get(hub_id, {}).get('name', hub_id)
+                                heading_to = f"{hub_name} ({hub_time})"
+                                found_target = True
                                 break
-                    
-                    # 2. If no off-campus stop in current trip, check NEXT trips
-                    if not heading_to:
-                        for next_trip_idx in range(i + 1, len(trips)):
-                            next_trip = trips[next_trip_idx]
-                            next_times = next_trip.get('times', {})
-                            
-                            for next_stop_id, next_time_val in next_times.items():
-                                stop_info = shuttle_data['stops'].get(next_stop_id, {})
-                                # We only care where it's heading OFF-CAMPUS
-                                if stop_info.get('type') == 'off-campus':
-                                    if next_time_val and next_time_val != 'DROP OFF':
-                                        heading_to = f"{stop_info['name']} ({next_time_val})"
-                                        break
-                                # Special Rule: If it's a campus DROP OFF, it's headed to the Park & Ride
-                                elif next_time_val == 'DROP OFF':
-                                    heading_to = "Bay Area Park & Ride (DROP OFF ONLY)"
-                                    break
-                            if heading_to: break
-                
+                        
+                        if found_target: break
+                        
+                        # Check for "DROP OFF" rule (headed to Park & Ride)
+                        for s_id, t_val in search_times.items():
+                            if t_val == 'DROP OFF':
+                                heading_to = "Bay Area Park & Ride (DROP OFF ONLY)"
+                                found_target = True
+                                break
+                        
+                        if found_target: break
+
                 diff = minutes - current_minutes
                 times.append({
                     'time': time_str,
