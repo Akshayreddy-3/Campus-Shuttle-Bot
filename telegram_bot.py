@@ -8,6 +8,7 @@ import json
 import logging
 import os
 from datetime import datetime
+from datetime import datetime, timedelta
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, CallbackQueryHandler, filters, ContextTypes
 
@@ -166,6 +167,15 @@ def get_next_shuttle(stop_id):
             return t
     return None
 
+# Reminder callback
+async def send_reminder(context: ContextTypes.DEFAULT_TYPE):
+    job = context.job
+    await context.bot.send_message(
+        job.chat_id, 
+        text=f"🔔 *Reminder!* Your shuttle at *{job.data['stop_name']}* departs in 5 minutes ({job.data['time']}). 🚌💨",
+        parse_mode='Markdown'
+    )
+
 # Command Handlers
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Send welcome message"""
@@ -185,7 +195,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         message += "⚠️ *Note:* Today is Sunday. The shuttle service doesn't operate on Sundays."
     else:
         message += f"📅 Today's schedule: *{get_day_label()}*\n\n"
-        message += "I can help you check shuttle times!\n\n"
+        message += "I can help you check shuttle times and set reminders!\n\n"
         message += "*Commands:*\n"
         message += "/next - Find next shuttle at a stop\n"
         message += "/stops - See all stops\n"
@@ -203,6 +213,8 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message += "/next - Find next shuttle at a stop\n"
     message += "/stops - See all available stops\n"
     message += "/schedule - See full schedule for a stop\n\n"
+    message += "*Features:*\n"
+    message += "🔔 *Reminders:* When viewing a schedule, tap the 🔔 button to get a notification 5 minutes before departure.\n\n"
     message += "*Quick Tips:*\n"
     message += "• Just type a stop name to see its schedule\n"
     message += "• Type 'next hunter hall' for next shuttle\n"
@@ -295,13 +307,16 @@ async def send_next_shuttle(update: Update, stop: dict):
     message = f"🚌 *Next shuttles at {stop['name']}*\n"
     message += f"📅 {get_day_label()}\n\n"
     
+    keyboard = []
     for i, t in enumerate(upcoming):
+        star = "⭐" if i == 0 else ""
+        message += f"{'➡️' if i==0 else '    '} *{t['time']}* - {t['eta']} {star}\n"
+        # Add reminder button for the very next one
         if i == 0:
-            message += f"➡️ *{t['time']}* - {t['eta']} ⭐\n"
-        else:
-            message += f"    {t['time']} - {t['eta']}\n"
+            keyboard.append([InlineKeyboardButton(f"🔔 Remind me 5m before {t['time']}", callback_data=f"remind_{stop['id']}_{t['time']}")])
     
-    await update.message.reply_text(message, parse_mode='Markdown')
+    reply_markup = InlineKeyboardMarkup(keyboard) if keyboard else None
+    await update.message.reply_text(message, reply_markup=reply_markup, parse_mode='Markdown')
 
 async def send_schedule(update_or_query, stop: dict, is_callback=False):
     """Send full schedule for a stop"""
@@ -320,6 +335,7 @@ async def send_schedule(update_or_query, stop: dict, is_callback=False):
     
     current_minutes = get_current_minutes()
     found_next = False
+    keyboard = []
     
     for t in times:
         if t['is_past']:
@@ -327,13 +343,17 @@ async def send_schedule(update_or_query, stop: dict, is_callback=False):
         elif not found_next:
             message += f"➡️ *{t['time']}* - {t['eta']} ⭐\n"
             found_next = True
+            # Add reminder button for the next one
+            keyboard.append([InlineKeyboardButton(f"🔔 Remind me 5m before {t['time']}", callback_data=f"remind_{stop['id']}_{t['time']}")])
         else:
             message += f"    {t['time']} - {t['eta']}\n"
     
+    reply_markup = InlineKeyboardMarkup(keyboard) if keyboard else None
+    
     if is_callback:
-        await update_or_query.edit_message_text(message, parse_mode='Markdown')
+        await update_or_query.edit_message_text(message, reply_markup=reply_markup, parse_mode='Markdown')
     else:
-        await update_or_query.message.reply_text(message, parse_mode='Markdown')
+        await update_or_query.message.reply_text(message, reply_markup=reply_markup, parse_mode='Markdown')
 
 async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle button callbacks"""
@@ -346,6 +366,35 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if shuttle_data and stop_id in shuttle_data.get('stops', {}):
             stop = {'id': stop_id, **shuttle_data['stops'][stop_id]}
             await send_schedule(query, stop, is_callback=True)
+    
+    elif data.startswith('remind_'):
+        # Format: remind_stopid_time
+        parts = data.split('_')
+        stop_id = parts[1]
+        time_str = parts[2]
+        
+        stop_name = shuttle_data['stops'][stop_id]['name']
+        minutes = parse_time(time_str)
+        now_minutes = get_current_minutes()
+        
+        # Calculate delay (minutes until 5m before departure)
+        remind_at = minutes - 5
+        delay_seconds = (remind_at - now_minutes) * 60
+        
+        if delay_seconds < 0:
+            await query.message.reply_text("⚠️ This shuttle is departing too soon (in less than 5 minutes) to set a reminder!")
+            return
+            
+        # Schedule the job
+        context.job_queue.run_once(
+            send_reminder, 
+            delay_seconds, 
+            chat_id=query.message.chat_id, 
+            name=f"remind_{query.message.chat_id}_{stop_id}_{minutes}",
+            data={'stop_name': stop_name, 'time': time_str}
+        )
+        
+        await query.message.reply_text(f"✅ *Reminder set!* I'll notify you 5 minutes before the {time_str} shuttle at {stop_name}.", parse_mode='Markdown')
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle regular text messages"""
@@ -400,3 +449,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
