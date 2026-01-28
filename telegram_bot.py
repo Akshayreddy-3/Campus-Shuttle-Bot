@@ -153,6 +153,8 @@ def get_stop_schedule(stop_id):
     
     # Campus stops that trigger "Heading to" info
     campus_stops = ['recreation-center', 'hunter-hall', 'sscb', 'bayou-student', 'police-building']
+    # Preferred Hubs for "Heading to" display
+    major_hubs = ['bay-area-park-ride', 'united-way', 'coastal-flow', 'university-forest']
     
     for i, trip in enumerate(trips):
         time_str = trip.get('times', {}).get(stop_id)
@@ -160,7 +162,7 @@ def get_stop_schedule(stop_id):
             minutes = parse_time(time_str)
             if minutes is not None:
                 heading_to = None
-                # If it's a campus stop, find where the bus goes NEXT (chronologically later)
+                # If it's a campus stop, find where the bus goes NEXThub or off-campus location
                 if stop_id in campus_stops:
                     found_target = False
                     # Search through current and future trips
@@ -169,22 +171,24 @@ def get_stop_schedule(stop_id):
                         check_trip = trips[idx]
                         check_times = check_trip.get('times', {})
                         
-                        # Iterate through stops in this trip to find the first LATER time
-                        for s_id, t_val in check_times.items():
-                            if t_val == 'DROP OFF' and trip_offset > 0:
-                                # Special case for "next column" drop-off
-                                heading_to = "Bay Area Park & Ride (DROP OFF ONLY)"
-                                found_target = True
-                                break
-                            
-                            m_val = parse_time(t_val)
-                            # If we find a stop that is LATER than our current stop
-                            if m_val and m_val > minutes:
-                                s_name = shuttle_data['stops'].get(s_id, {}).get('name', s_id)
-                                heading_to = f"{s_name} ({t_val})"
+                        # PRIORITY 1: Look for Major Hubs first in this trip
+                        for hub_id in major_hubs:
+                            hub_time = check_times.get(hub_id)
+                            m_hub = parse_time(hub_time)
+                            if m_hub and m_hub > minutes:
+                                hub_name = shuttle_data['stops'].get(hub_id, {}).get('name', hub_id)
+                                heading_to = f"{hub_name} ({hub_time})"
                                 found_target = True
                                 break
                         
+                        if found_target: break
+                        
+                        # PRIORITY 2: Check for "DROP OFF" (Park & Ride)
+                        if any(t == 'DROP OFF' for t in check_times.values()) and trip_offset > 0:
+                            heading_to = "Bay Area Park & Ride (DROP OFF ONLY)"
+                            found_target = True
+                            break
+                            
                         if found_target: break
 
                 diff = minutes - current_minutes
