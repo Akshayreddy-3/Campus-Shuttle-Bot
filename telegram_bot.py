@@ -280,17 +280,15 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     await update.message.reply_text(message, parse_mode='Markdown')
 
-async def stops_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Show all stops as inline buttons"""
+async def get_stops_keyboard():
+    """Helper to generate the stops keyboard"""
     if not shuttle_data:
-        await update.message.reply_text("❌ Schedule data not available.")
-        return
-    
+        return None
+        
     keyboard = []
     stops = shuttle_data.get('stops', {})
     sorted_stops = sorted(stops.items(), key=lambda x: x[1].get('order', 0))
     
-    # Create buttons in pairs
     row = []
     for stop_id, stop_info in sorted_stops:
         emoji = "🏛️" if stop_info.get('type') == 'on-campus' else "🏠"
@@ -304,8 +302,14 @@ async def stops_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
             row = []
     if row:
         keyboard.append(row)
-    
-    reply_markup = InlineKeyboardMarkup(keyboard)
+    return InlineKeyboardMarkup(keyboard)
+
+async def stops_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Show all stops as inline buttons"""
+    reply_markup = await get_stops_keyboard()
+    if not reply_markup:
+        await update.message.reply_text("❌ Schedule data not available.")
+        return
     
     message = "📍 *All Shuttle Stops*\n\n"
     message += "🏛️ = On Campus | 🏠 = Off Campus\n\n"
@@ -465,6 +469,15 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("⚠️ No shuttle service on Sundays! Check back Monday.")
         return
     
+    # Greetings detection
+    greetings = ['hi', 'hello', 'hey', 'good morning', 'good afternoon', 'good evening', 'yo', 'sup']
+    if any(greet in text for greet in greetings):
+        reply_markup = await get_stops_keyboard()
+        message = "👋 *Hello!* How can I help you today?\n\n"
+        message += "I'm your Campus Shuttle Bot. Please select a stop below to see its schedule, or ask me something like 'next hunter hall'."
+        await update.message.reply_text(message, reply_markup=reply_markup, parse_mode='Markdown')
+        return
+
     # Check for "next" keyword
     if 'next' in text or 'when' in text:
         stop = find_stop(text)
