@@ -8,12 +8,16 @@ import json
 import logging
 import os
 import pytz
+import dotenv
 from datetime import datetime, timedelta
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, CallbackQueryHandler, filters, ContextTypes
 
-# Bot Token - uses environment variable for cloud, fallback for local
-BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "8483816124:AAGSxAnKnRRcV-7_tjuZH0xqm98bOQRSvHs")
+# Load environment variables
+dotenv.load_dotenv()
+
+# Bot Token - uses environment variable
+BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 
 # Timezone for the campus (Houston is Central Time)
 CAMPUS_TZ = pytz.timezone('US/Central')
@@ -370,45 +374,55 @@ async def send_next_shuttle(update: Update, stop: dict):
         star = "⭐" if i == 0 else ""
         heading = f"\n    ↳ ➡️ _Heading to: {t['heading_to']}_" if t.get('heading_to') else ""
         message += f"{'➡️' if i==0 else '    '} *{t['time']}* - {t['eta']} {star}{heading}\n"
-        # Add reminder button for the very next one
+        # Add reminder + back buttons for the very next one
         if i == 0:
-            keyboard.append([InlineKeyboardButton(f"🔔 Remind me 5m before {t['time']}", callback_data=f"remind_{stop['id']}_{t['time']}")])
+            keyboard.append([
+                InlineKeyboardButton(f"🔔 Remind me 5m before {t['time']}", callback_data=f"remind_{stop['id']}_{t['time']}"),
+                InlineKeyboardButton("⬅️ Back to Stops", callback_data="back_to_stops")
+            ])
     
-    reply_markup = InlineKeyboardMarkup(keyboard) if keyboard else None
+    if not keyboard:
+        keyboard.append([InlineKeyboardButton("⬅️ Back to Stops", callback_data="back_to_stops")])
+    
+    reply_markup = InlineKeyboardMarkup(keyboard)
     await update.message.reply_text(message, reply_markup=reply_markup, parse_mode='Markdown')
 
 async def send_schedule(update_or_query, stop: dict, is_callback=False):
-    """Send full schedule for a stop"""
+    """Send full schedule for a stop (only upcoming shuttles)"""
     times = get_stop_schedule(stop['id'])
+    current_minutes = get_current_minutes()
     
-    if not times:
-        message = f"😔 No scheduled stops at *{stop['name']}* for today ({get_day_label()})."
+    # Filter to only show current and upcoming shuttles
+    upcoming_times = [t for t in times if not t['is_past']]
+    
+    if not upcoming_times:
+        keyboard = [[InlineKeyboardButton("⬅️ Back to Stops", callback_data="back_to_stops")]]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        message = f"😔 No more shuttles at *{stop['name']}* for today ({get_day_label()})."
         if is_callback:
-            await update_or_query.edit_message_text(message, parse_mode='Markdown')
+            await update_or_query.edit_message_text(message, reply_markup=reply_markup, parse_mode='Markdown')
         else:
-            await update_or_query.message.reply_text(message, parse_mode='Markdown')
+            await update_or_query.message.reply_text(message, reply_markup=reply_markup, parse_mode='Markdown')
         return
     
     message = f"📅 *{stop['name']}*\n"
     message += f"Schedule for {get_day_label()}\n\n"
     
-    current_minutes = get_current_minutes()
-    found_next = False
     keyboard = []
     
-    for t in times:
+    for i, t in enumerate(upcoming_times):
         heading = f"\n    ↳ ➡️ _Heading to: {t['heading_to']}_" if t.get('heading_to') else ""
-        if t['is_past']:
-            message += f"~~{t['time']}~~ _(passed)_{heading}\n"
-        elif not found_next:
+        if i == 0:
             message += f"➡️ *{t['time']}* - {t['eta']} ⭐{heading}\n"
-            found_next = True
-            # Add reminder button for the next one
-            keyboard.append([InlineKeyboardButton(f"🔔 Remind me 5m before {t['time']}", callback_data=f"remind_{stop['id']}_{t['time']}")])
+            # Add reminder + back buttons for the next one
+            keyboard.append([
+                InlineKeyboardButton(f"🔔 Remind me 5m before {t['time']}", callback_data=f"remind_{stop['id']}_{t['time']}"),
+                InlineKeyboardButton("⬅️ Back to Stops", callback_data="back_to_stops")
+            ])
         else:
             message += f"    {t['time']} - {t['eta']}{heading}\n"
     
-    reply_markup = InlineKeyboardMarkup(keyboard) if keyboard else None
+    reply_markup = InlineKeyboardMarkup(keyboard)
     
     if is_callback:
         await update_or_query.edit_message_text(message, reply_markup=reply_markup, parse_mode='Markdown')
@@ -426,6 +440,38 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if shuttle_data and stop_id in shuttle_data.get('stops', {}):
             stop = {'id': stop_id, **shuttle_data['stops'][stop_id]}
             await send_schedule(query, stop, is_callback=True)
+    
+    elif data == 'back_to_stops':
+        # Show the stops list by editing the current message
+        if not shuttle_data:
+            await query.edit_message_text("❌ Schedule data not available.")
+            return
+        
+        keyboard = []
+        stops = shuttle_data.get('stops', {})
+        sorted_stops = sorted(stops.items(), key=lambda x: x[1].get('order', 0))
+        
+        row = []
+        for stop_id, stop_info in sorted_stops:
+            emoji = "🏛️" if stop_info.get('type') == 'on-campus' else "🏠"
+            btn = InlineKeyboardButton(
+                f"{emoji} {stop_info['name'][:20]}",
+                callback_data=f"schedule_{stop_id}"
+            )
+            row.append(btn)
+            if len(row) == 2:
+                keyboard.append(row)
+                row = []
+        if row:
+            keyboard.append(row)
+        
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        
+        message = "📍 *All Shuttle Stops*\n\n"
+        message += "🏛️ = On Campus | 🏠 = Off Campus\n\n"
+        message += "Tap any stop to see its schedule:"
+        
+        await query.edit_message_text(message, reply_markup=reply_markup, parse_mode='Markdown')
     
     elif data.startswith('remind_'):
         # Format: remind_stopid_time
@@ -461,6 +507,52 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = update.message.text.lower().strip()
     
     day_type = get_day_type()
+    
+    # Check for greetings
+    greetings = ['hi', 'hello', 'hey', 'howdy', 'sup', 'yo', "what's up", 'whats up',
+                 'good morning', 'good afternoon', 'good evening', 'greetings', 'hola']
+    if any(text == g or text.startswith(g + ' ') or text.startswith(g + '!') or text.startswith(g + ',') for g in greetings):
+        now = get_now()
+        hour = now.hour
+        if hour < 12:
+            greeting = "Good morning"
+        elif hour < 17:
+            greeting = "Good afternoon"
+        else:
+            greeting = "Good evening"
+        
+        if not day_type:
+            message = f"{greeting}! 👋🚌\n\n⚠️ *Note:* Today is Sunday. The shuttle service doesn't operate on Sundays."
+            await update.message.reply_text(message, parse_mode='Markdown')
+            return
+        
+        # Build stops keyboard
+        keyboard = []
+        stops = shuttle_data.get('stops', {})
+        sorted_stops = sorted(stops.items(), key=lambda x: x[1].get('order', 0))
+        row = []
+        for stop_id, stop_info in sorted_stops:
+            emoji = "🏛️" if stop_info.get('type') == 'on-campus' else "🏠"
+            btn = InlineKeyboardButton(
+                f"{emoji} {stop_info['name'][:20]}",
+                callback_data=f"schedule_{stop_id}"
+            )
+            row.append(btn)
+            if len(row) == 2:
+                keyboard.append(row)
+                row = []
+        if row:
+            keyboard.append(row)
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        
+        message = f"{greeting}! 👋🚌\n\n"
+        message += f"📅 Today's schedule: *{get_day_label()}*\n"
+        message += f"🕒 Current time: *{now.strftime('%I:%M %p')}*\n\n"
+        message += "Tap any stop below to check shuttle times:"
+        
+        await update.message.reply_text(message, reply_markup=reply_markup, parse_mode='Markdown')
+        return
+    
     if not day_type:
         await update.message.reply_text("⚠️ No shuttle service on Sundays! Check back Monday.")
         return
